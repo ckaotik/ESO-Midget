@@ -1,7 +1,7 @@
 ## Title: Midget
 ## Author: ckaotik
 ## Version: 0.1
-## APIVersion: 100004
+## APIVersion: 100007
 ## SavedVariables: MidgetDB
 ## OptionalDependsOn: Console
 
