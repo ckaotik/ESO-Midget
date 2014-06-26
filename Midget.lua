@@ -6,6 +6,16 @@ local addonName, addon, _ = 'Midget', {}
 local wm = GetWindowManager()
 local em = GetEventManager()
 
+local function GetItemLinkFromID(itemID)
+	return ZO_LinkHandler_CreateLink('', nil, ITEM_LINK_TYPE, itemID, string.rep('0:', 19))
+end
+local function GetItemIDFromLink(itemLink)
+	local _, _, _, itemID = ZO_LinkHandler_ParseLink(itemLink)
+	               itemID = itemID and tonumber(itemID)
+	return itemID
+end
+FOO = GetItemLinkFromID
+
 local function Initialize(eventCode, arg1, ...)
 	if arg1 ~= addonName then return end
 	EVENT_MANAGER:UnregisterForEvent(addonName, EVENT_ADD_ON_LOADED)
@@ -61,6 +71,7 @@ local function Initialize(eventCode, arg1, ...)
 		end
 	end
 	ZO_PreHook(_G, 'ZO_InventorySlot_OnMouseEnter', OnMouseEnter)
+	ZO_PreHook(_G, 'ZO_InventorySlot_OnMouseExit', HideKeybind)
 	ZO_PreHook(_G, 'ZO_InventorySlot_RemoveMouseOverKeybinds', HideKeybind)
 
 	-- allow SHIFT+Click on inventory to post link to chat
@@ -97,6 +108,49 @@ local function Initialize(eventCode, arg1, ...)
 		local text = GetRunestoneTranslatedName(bag, slot)
 		label:SetText(text or '')
 	end)
+
+	-- recipe known info
+	-- ----------------------------------------------------
+	local recipeDB = ZO_SavedVars:NewAccountWide(addonName..'DB', 1, 'recipes', {
+		data = {},
+		known = {
+			['*'] = {},
+		},
+	})
+	-- scan recipes
+	for listIndex = 1, GetNumRecipeLists() do
+		local listName, numRecipes = GetRecipeListInfo(listIndex)
+		local listValue = ''
+		for recipeIndex = 1, numRecipes do
+			local isKnown, _, numIngredients = GetRecipeInfo(listIndex, recipeIndex)
+			listValue = listValue .. (isKnown and 1 or 0)
+
+			if isKnown then
+				local ingredients = {}
+				for ingredientIndex = 1, numIngredients do
+					local ingredientID = GetItemIDFromLink(GetRecipeIngredientItemLink(listIndex, recipeIndex, ingredientIndex))
+					ingredients[ingredientID] = select(3, GetRecipeIngredientItemInfo(listIndex, recipeIndex, ingredientIndex))
+				end
+
+				local itemLink = GetRecipeResultItemLink(listIndex, recipeIndex, LINK_STYLE_DEFAULT)
+				recipeDB.data[ GetItemIDFromLink(itemLink) ] = { listIndex, recipeIndex, ingredients = ingredients }
+			end
+		end
+		recipeDB.known[ GetUnitName('player') ][listIndex] = listValue
+	end
+	--[[
+	if GetItemType(bag, slot) == ITEMTYPE_RECIPE then -- or SI_ITEMTYPE29
+		local recipeName = GetItemName(bag, slot)
+		-- recipeName 46004 "Rezept: Kristallweiß^n:n"
+		-- recipe link: "|H1:item:46004:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:|h[]|h" "Rezept Für Ein Kristallweiß"
+		-- item link:   "|H1:item:28473:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:|h[]|h" "Kristallweiß"
+	end
+	--]]
+
+	-- TODO: highlight unusable items (recipes) red
+	-- ----------------------------------------------------
+	-- TODO: highlight learnable items green
+	-- ----------------------------------------------------
 
 	-- TODO: someone logs on, add friend note: [@friend] has logged on (BFF!)
 	-- ----------------------------------------------------
