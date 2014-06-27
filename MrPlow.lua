@@ -43,12 +43,15 @@ local function Initialize(eventCode, arg1)
 		smartSort:SetDimensions(16, 32)
 		smartSort:SetAnchor(RIGHT, parent:GetNamedChild('Name'), LEFT, -15)
 
-		ZO_PlayerInventory_InitSortHeaderIcon(smartSort,
+		ZO_SortHeader_SetTooltip(smartSort, "Sort", BOTTOMRIGHT, 0, 32)
+		ZO_SortHeader_InitializeArrowHeader(smartSort, "age", ZO_SORT_ORDER_DOWN)
+
+		--[[ ZO_PlayerInventory_InitSortHeaderIcon(smartSort,
 			'EsoUI/Art/Miscellaneous/list_sortHeader_icon_neutral.dds',
 			'EsoUI/Art/Miscellaneous/list_sortHeader_icon_sortUp.dds',
 			'EsoUI/Art/Miscellaneous/list_sortHeader_icon_sortDown.dds',
 			'EsoUI/Art/Miscellaneous/list_sortHeader_icon_over.dds',
-			'age')
+			'age') --]]
 		inventory.sortHeaders:AddHeader(smartSort)
 		inventory.sortHeaders:SelectHeaderByKey('age')
 	end
