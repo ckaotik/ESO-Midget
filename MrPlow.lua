@@ -8,7 +8,8 @@ local function Initialize(eventCode, arg1)
 	local wm = GetWindowManager()
 	local LibSort = LibStub('LibSort-1.0')
 
-	-- NOTE: these must be reflected in LibSort
+	-- NOTE: these must be reflected in LibSort such as
+	-- inventoryTypes['enchanting'] = ZO_EnchantingTopLevelInventoryBackpack
 	local inventories = {
 		['enchanting'] = ENCHANTING.inventory,
 	}
