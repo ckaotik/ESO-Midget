@@ -213,6 +213,7 @@ local function Initialize(eventCode, arg1)
 			-- toggle full mode (which may zoom normally)
 			ZO_WorldMap_SetCustomZoomLevels(nil, nil)
 			ZO_WorldMap_ToggleSize()
+			ZO_WorldMap_PanToPlayer()
 		elseif newState == SCENE_HIDING then
 			-- prepare minimap
 			ZO_WorldMapTitle:SetDimensionConstraints(0, 0, minimapDB.width + paddingX, 0)
