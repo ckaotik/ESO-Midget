@@ -6,6 +6,7 @@
 ## OptionalDependsOn: Console
 
 libs\LibStub\LibStub.lua
+libs\LibSort-1.0\LibSort-1.0.lua
 libs\LibMediaProvider-1.0\LibMediaProvider-1.0.lua
 libs\LibAddonMenu-2.0\LibAddonMenu-2.0.lua
 libs\LibAddonMenu-2.0\controls\panel.lua
