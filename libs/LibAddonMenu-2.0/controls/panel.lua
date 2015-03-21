@@ -11,7 +11,7 @@
 }	]]
 
 
-local widgetVersion = 4
+local widgetVersion = 8
 local LAM = LibStub("LibAddonMenu-2.0")
 if not LAM:RegisterWidget("panel", widgetVersion) then return end
 
@@ -21,10 +21,10 @@ local cm = CALLBACK_MANAGER
 local function RefreshPanel(control)
 	local panel = control.panel or control	--callback can be fired by a single control or by the panel showing
 	local panelControls = panel.controlsToRefresh
-	
+
 	for i = 1, #panelControls do
 		local updateControl = panelControls[i]
-		if  updateControl ~= control then		
+		if  updateControl ~= control then
 			if updateControl.UpdateValue then
 				updateControl:UpdateValue()
 			end
@@ -37,18 +37,18 @@ end
 
 local function ForceDefaults(panel)
 	local panelControls = panel.controlsToRefresh
-	
+
 	for i = 1, #panelControls do
 		local updateControl = panelControls[i]
 		if updateControl.UpdateValue and updateControl.data.default ~= nil then
 			updateControl:UpdateValue(true)
 		end
 	end
-	
+
 	if panel.data.resetFunc then
 		panel.data.resetFunc()
 	end
-	
+
 	cm:FireCallbacks("LAM-RefreshPanel", panel)
 end
 ESO_Dialogs["LAM_DEFAULTS"] = {
@@ -70,7 +70,8 @@ ESO_Dialogs["LAM_DEFAULTS"] = {
 	},
 }
 
-local scrollCount = 1
+local callbackRegistered = false
+LAMCreateControl.scrollCount = LAMCreateControl.scrollCount or 1
 function LAMCreateControl.panel(parent, panelData, controlName)
 	local control = wm:CreateTopLevelWindow(controlName)
 	control:SetParent(parent)
@@ -78,14 +79,14 @@ function LAMCreateControl.panel(parent, panelData, controlName)
 	control.bg = wm:CreateControl(nil, control, CT_BACKDROP)
 	local bg = control.bg
 	bg:SetAnchorFill()
-	bg:SetEdgeTexture("EsoUI\\Art\\Tooltips\\UI-Border.dds", 128, 16)
+	bg:SetEdgeTexture("EsoUI\\Art\\miscellaneous\\borderedinsettransparent_edgefile.dds", 128, 16)
 	bg:SetCenterColor(0, 0, 0, 0)
-	
+
 	control.label = wm:CreateControlFromVirtual(nil, control, "ZO_Options_SectionTitleLabel")
 	local label = control.label
 	label:SetAnchor(TOPLEFT, control, TOPLEFT, 10, 10)
 	label:SetText(panelData.displayName and panelData.displayName or panelData.name)
-	
+
 	if panelData.author or panelData.version then
 		control.info = wm:CreateControl(nil, control, CT_LABEL)
 		local info = control.info
@@ -102,15 +103,15 @@ function LAMCreateControl.panel(parent, panelData, controlName)
 			info:SetText("Version: "..panelData.version)
 		end
 	end
-	
-	control.container = wm:CreateControlFromVirtual("LAMAddonPanelContainer"..scrollCount, control, "ZO_ScrollContainer")
-	scrollCount = scrollCount + 1
+
+	control.container = wm:CreateControlFromVirtual("LAMAddonPanelContainer"..LAMCreateControl.scrollCount, control, "ZO_ScrollContainer")
+	LAMCreateControl.scrollCount = LAMCreateControl.scrollCount + 1
 	local container = control.container
 	container:SetAnchor(TOPLEFT, label, BOTTOMLEFT, 0, 20)
 	container:SetAnchor(BOTTOMRIGHT, control, BOTTOMRIGHT, -3, -3)
 	control.scroll = GetControl(control.container, "ScrollChild")
 	control.scroll:SetResizeToFitPadding(0, 20)
-	
+
 	if panelData.registerForDefaults then
 		control.defaultButton = wm:CreateControlFromVirtual(nil, control, "ZO_DefaultTextButton")
 		local defaultButton = control.defaultButton
@@ -125,12 +126,13 @@ function LAMCreateControl.panel(parent, panelData, controlName)
 			end)
 	end
 
-	if panelData.registerForRefresh then
+	if panelData.registerForRefresh and not callbackRegistered then	--don't want to register our callback more than once
 		cm:RegisterCallback("LAM-RefreshPanel", RefreshPanel)
+		callbackRegistered = true
 	end
 
 	control.data = panelData
 	control.controlsToRefresh = {}
-	
+
 	return control
 end

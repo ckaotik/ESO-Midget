@@ -6,18 +6,22 @@
 }	]]
 
 
-local widgetVersion = 2
+local widgetVersion = 5
 local LAM = LibStub("LibAddonMenu-2.0")
 if not LAM:RegisterWidget("header", widgetVersion) then return end
 
 local wm = WINDOW_MANAGER
+local tinsert = table.insert
+
+local function UpdateValue(control)
+	control.header:SetText(control.data.name)
+end
 
 function LAMCreateControl.header(parent, headerData, controlName)
-	local control = wm:CreateTopLevelWindow(controlName or headerData.reference)
-	control:SetParent(parent.scroll)
+	local control = wm:CreateControl(controlName or headerData.reference, parent.scroll or parent, CT_CONTROL)
 	local isHalfWidth = headerData.width == "half"
 	control:SetDimensions(isHalfWidth and 250 or 510, 30)
-	
+
 	control.divider = wm:CreateControlFromVirtual(nil, control, "ZO_Options_Divider")
 	local divider = control.divider
 	divider:SetWidth(isHalfWidth and 250 or 510)
@@ -28,9 +32,15 @@ function LAMCreateControl.header(parent, headerData, controlName)
 	header:SetAnchor(TOPLEFT, divider, BOTTOMLEFT)
 	header:SetAnchor(BOTTOMRIGHT)
 	header:SetText(headerData.name)
-	
+
 	control.panel = parent.panel or parent	--if this is in a submenu, panel is its parent
 	control.data = headerData
-	
+
+	control.UpdateValue = UpdateValue
+
+	if control.panel.data.registerForRefresh or control.panel.data.registerForDefaults then	--if our parent window wants to refresh controls, then add this to the list
+		tinsert(control.panel.controlsToRefresh, control)
+	end
+
 	return control
 end
