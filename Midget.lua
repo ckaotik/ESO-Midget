@@ -14,7 +14,6 @@ local function GetItemIDFromLink(itemLink)
 	               itemID = itemID and tonumber(itemID)
 	return itemID
 end
-FOO = GetItemLinkFromID
 
 local function Initialize(eventCode, arg1, ...)
 	if arg1 ~= addonName then return end
@@ -40,6 +39,7 @@ local function Initialize(eventCode, arg1, ...)
 
 	-- Add keybind for split stack on mouseover
 	-- ----------------------------------------------------
+	--[[
 	-- TODO: SlotMouseoverCommand
 	-- function ZO_InventorySlotActions:AddSlotAction(actionStringId, actionCallback, actionType, visibilityFunction, options)
 	-- slotActions:AddSlotAction(SI_ITEM_ACTION_SPLIT_STACK, function() TrySplitStack(inventorySlot) end, "secondary")
@@ -73,6 +73,7 @@ local function Initialize(eventCode, arg1, ...)
 	ZO_PreHook(_G, 'ZO_InventorySlot_OnMouseEnter', OnMouseEnter)
 	ZO_PreHook(_G, 'ZO_InventorySlot_OnMouseExit', HideKeybind)
 	ZO_PreHook(_G, 'ZO_InventorySlot_RemoveMouseOverKeybinds', HideKeybind)
+	--]]
 
 	-- allow SHIFT+Click on inventory to post link to chat
 	-- ----------------------------------------------------
